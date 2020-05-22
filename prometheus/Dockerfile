@@ -8,15 +8,17 @@ FROM prom/prometheus:v2.18.1
 
 COPY --from=0 /usr/bin/envsubst /usr/bin/envsubst
 
-RUN ls -al /usr/bin/envsubst
-
 ADD prometheus.template.yml /etc/prometheus/prometheus.template.yml
 
 ADD entrypoint.sh /etc/prometheus/entrypoint.sh
 
-RUN  /etc/prometheus/entrypoint.sh
+USER root
 
-RUN chmod -R a+x /etc/prometheus/entrypoint.sh
+RUN chmod +x /etc/prometheus/entrypoint.sh
+
+USER nobody
+
+EXPOSE 9090
 
 VOLUME [ "/prometheus" ]
 

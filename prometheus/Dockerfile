@@ -1,12 +1,10 @@
-FROM debian:stretch
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gettext \
-    && rm -rf /var/lib/apt/lists/*
+FROM golang:alpine
+RUN apk add --update git 
+RUN go get -u -v github.com/a8m/envsubst/cmd/envsubst
 
 FROM prom/prometheus:v2.18.1
 
-COPY --from=0 /usr/bin/envsubst /usr/bin/envsubst
+COPY --from=0 /go/bin/envsubst /usr/bin/envsubst
 
 ADD prometheus.template.yml /etc/prometheus/prometheus.template.yml
 
@@ -26,7 +24,7 @@ WORKDIR /prometheus
 
 ENTRYPOINT ["/etc/prometheus/entrypoint.sh"]
 
-CMD        [ "-config.file=/etc/prometheus/prometheus.yml", \
-             "-storage.local.path=/prometheus", \
-             "-web.console.libraries=/etc/prometheus/console_libraries", \
-             "-web.console.templates=/etc/prometheus/consoles" ]
+CMD        [ "--config.file=/etc/prometheus/prometheus.yml", \
+             "--storage.tsdb.path=/prometheus", \
+             "--web.console.libraries=/usr/share/prometheus/console_libraries", \
+             "--web.console.templates=/usr/share/prometheus/consoles" ]

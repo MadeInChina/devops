@@ -1,0 +1,30 @@
+version: '2'
+services:
+  prometheus:
+    image: registry.docker.com/prometheus:v2.18.1
+    environment:
+      CONSUL_URL: consul:8500
+    external_links:
+    - infrastructure/consul:consul
+    ports:
+    - 9090:9090/tcp
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:host_label: monitoring=true
+  consul:
+    image: registry.docker.com/consul:1.6.5
+    stdin_open: true
+    tty: true
+    ports:
+    - 8500:8500/tcp
+    command:
+    - agent
+    - -server
+    - -bind=0.0.0.0
+    - -client=0.0.0.0
+    - -node=node1
+    - -bootstrap-expect=1
+    - -ui
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:host_label: infrastructure=true

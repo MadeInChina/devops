@@ -1,0 +1,34 @@
+version: '2'
+services:
+  nginx:
+    image: nginx
+    stdin_open: true
+    network_mode: host
+    volumes:
+    - /home/hanrw/infrastructure/nginx/logs:/var/nginx/logs
+    - /home/hanrw/infrastructure/nginx/conf/registry.homelab.org.conf:/etc/nginx/conf.d/registry.homelab.org.conf
+    - /home/hanrw/infrastructure/nginx/ssl/homelab.org:/etc/nginx/cert
+    tty: true
+    labels:
+      io.rancher.scheduler.affinity:host_label: infrastructure=true
+      io.rancher.container.dns: 'true'
+  consul:
+    image: registry.homelab.org/consul:1.6.5
+    stdin_open: true
+    network_mode: host
+    tty: true
+    ports:
+    - 8500:8500/tcp
+    command:
+    - agent
+    - -server
+    - -bind=192.168.2.252
+    - -client=0.0.0.0
+    - -node=node1
+    - -bootstrap-expect=1
+    - -ui
+    labels:
+      io.rancher.scheduler.affinity:host_label: infrastructure=true
+      io.rancher.container.dns: 'true'
+      io.rancher.container.pull_image: always
+

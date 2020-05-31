@@ -1,0 +1,29 @@
+version: '2'
+services:
+  grafana:
+    image: registry.homelab.org/grafana/grafana:7.0.1
+    stdin_open: true
+    volumes:
+    - /home/hanrw/monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+    - /etc/localtime:/etc/localtime:ro
+    - /home/hanrw/monitoring/grafana/data:/var/lib/grafana
+    tty: true
+    ports:
+    - 3000:3000/tcp
+    user: 0:0
+    labels:
+      io.rancher.scheduler.affinity:host_label: monitoring=true
+  prometheus:
+    image: registry.homelab.org/prometheus:v2.18.1
+    environment:
+      CONSUL_URL: consul:8500
+    external_links:
+    - infrastructure/consul:consul
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
+    ports:
+    - 9090:9090/tcp
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:host_label: monitoring=true
+

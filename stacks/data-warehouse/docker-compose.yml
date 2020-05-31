@@ -1,0 +1,56 @@
+version: '2'
+services:
+  mongo:
+    image: registry.homelab.org/mongo:3.6.17-xenial
+    environment:
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_ROOT_USERNAME: root
+    stdin_open: true
+    tty: true
+    ports:
+    - 27017:27017/tcp
+    labels:
+      io.rancher.scheduler.affinity:host_label: application=true
+      io.rancher.container.pull_image: always
+  rabbitmq3:
+    image: registry.homelab.org/rabbitmq:3-management
+    stdin_open: true
+    tty: true
+    ports:
+    - 15672:15672/tcp
+    - 5672:5672/tcp
+    labels:
+      io.rancher.scheduler.affinity:host_label: application=true
+  mysqldexporter:
+    image: registry.homelab.org/prom/mysqld-exporter:v0.12.1
+    environment:
+      DATA_SOURCE_NAME: root:password@(mysqldb:3306)/
+    stdin_open: true
+    tty: true
+    links:
+    - mysql:mysqldb
+    ports:
+    - 9104:9104/tcp
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:host_label: application=true
+  mysql:
+    image: registry.homelab.org/mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    stdin_open: true
+    tty: true
+    ports:
+    - 3306:3306/tcp
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:host_label: application=true
+  redis:
+    image: registry.homelab.org/redis:6.0.4
+    stdin_open: true
+    tty: true
+    ports:
+    - 6379:6379/tcp
+    labels:
+      io.rancher.scheduler.affinity:host_label: application=true
+

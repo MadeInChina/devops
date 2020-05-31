@@ -9,8 +9,15 @@ scrape_configs:
   - job_name: 'consul'
     metrics_path: '/actuator/prometheus'
     consul_sd_configs:
-      - server: '${CONSUL_URL}'
+      - server: '${CONSUL_URL:-127.0.0.1:8500}'
         services: ['ADMIN']
     relabel_configs:
       - source_labels: [__meta_consul_service]
         target_label: job
+
+  - job_name: 'mysql'
+    scrape_interval: 5s
+    static_configs:
+    - targets: ['${MYSQL_EXPORTER_URL:-127.0.0.1:9104}']
+      labels:
+        instance: mysql

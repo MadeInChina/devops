@@ -1,5 +1,27 @@
 version: '2'
 services:
+  mysqld-exporter:
+    image: registry.homelab.org/prom/mysqld-exporter:v0.12.1
+    environment:
+      DATA_SOURCE_NAME: root:password@(mysqldb:3306)/
+    stdin_open: true
+    external_links:
+    - data-warehouse/mysql:mysqldb
+    tty: true
+    ports:
+    - 9104:9104/tcp
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:host_label: monitoring=true
+  node-exporter:
+    image: registry.homelab.org/prom/node-exporter:v1.0.0
+    stdin_open: true
+    tty: true
+    ports:
+    - 9100:9100/tcp
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.global: 'true'
   grafana:
     image: registry.homelab.org/grafana/grafana:7.0.1
     stdin_open: true
@@ -13,6 +35,25 @@ services:
     user: 0:0
     labels:
       io.rancher.scheduler.affinity:host_label: monitoring=true
+  debian:
+    image: registry.homelab.org/debian:buster
+    stdin_open: true
+    tty: true
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:host_label: monitoring=true
+  cadvisor:
+    image: registry.homelab.org/google/cadvisor:canary
+    stdin_open: true
+    volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    tty: true
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.global: 'true'
   prometheus:
     image: registry.homelab.org/prometheus:v2.18.1
     environment:
@@ -26,4 +67,3 @@ services:
     labels:
       io.rancher.container.pull_image: always
       io.rancher.scheduler.affinity:host_label: monitoring=true
-

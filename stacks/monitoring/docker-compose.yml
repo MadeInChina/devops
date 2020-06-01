@@ -57,13 +57,12 @@ services:
   prometheus:
     image: registry.homelab.org/prometheus:v2.18.1
     environment:
-      CONSUL_URL: consul:8500
+      CONSUL_URL: eureka-consul:8761
     external_links:
-    - infrastructure/consul:consul
+    - piggymetrics/registry:eureka-consul
     volumes:
     - /etc/localtime:/etc/localtime:ro
     ports:
     - 9090:9090/tcp
     labels:
-      io.rancher.container.pull_image: always
       io.rancher.scheduler.affinity:host_label: monitoring=true

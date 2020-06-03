@@ -21,18 +21,11 @@ services:
     - 5672:5672/tcp
     labels:
       io.rancher.scheduler.affinity:host_label: application=true
-  mysqldexporter:
-    image: registry.homelab.org/prom/mysqld-exporter:v0.12.1
-    environment:
-      DATA_SOURCE_NAME: root:password@(mysqldb:3306)/
+  debian:
+    image: registry.homelab.org/debian:buster
     stdin_open: true
     tty: true
-    links:
-    - mysql:mysqldb
-    ports:
-    - 9104:9104/tcp
     labels:
-      io.rancher.container.pull_image: always
       io.rancher.scheduler.affinity:host_label: application=true
   mysql:
     image: registry.homelab.org/mysql:5.7

@@ -1,105 +1,49 @@
 version: '2'
 services:
-  mysqld-exporter:
-    image: registry.homelab.org/prom/mysqld-exporter:v0.12.1
+  mongo:
+    image: registry.homelab.org/mongo:3.6.17-xenial
     environment:
-      DATA_SOURCE_NAME: root:password@(mysqldb:3306)/
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_ROOT_USERNAME: root
     stdin_open: true
-    external_links:
-    - data-warehouse/mysql:mysqldb
     tty: true
     ports:
-    - 9104:9104/tcp
+    - 27017:27017/tcp
     labels:
+      io.rancher.scheduler.affinity:host_label: application=true
       io.rancher.container.pull_image: always
-      io.rancher.scheduler.affinity:host_label: monitoring=true
-  node-exporter:
-    image: registry.homelab.org/prom/node-exporter:v1.0.0
+  rabbitmq3:
+    image: registry.homelab.org/rabbitmq:3-management
     stdin_open: true
     tty: true
     ports:
-    - 9100:9100/tcp
+    - 15672:15672/tcp
+    - 5672:5672/tcp
     labels:
-      io.rancher.container.pull_image: always
-      io.rancher.scheduler.global: 'true'
-  skywalking-oap-server:
-    image: registry.homelab.org/apache/skywalking-oap-server:7.0.0-es7
-    environment:
-      SW_STORAGE: elasticsearch7
-      SW_STORAGE_ES_CLUSTER_NODES: elasticsearch:9200
-    stdin_open: true
-    tty: true
-    links:
-    - elasticsearch:elasticsearch
-    ports:
-    - 11800:11800/tcp
-    - 12800:12800/tcp
-    labels:
-      io.rancher.scheduler.affinity:host_label: monitoring=true
-  skywalking-ui:
-    image: registry.homelab.org/apache/skywalking-ui:7.0.0
-    environment:
-      SW_OAP_ADDRESS: skywalking-oap-server:12800
-    stdin_open: true
-    tty: true
-    links:
-    - skywalking-oap-server:skywalking-oap-server
-    ports:
-    - 8080:8080/tcp
-    labels:
-      io.rancher.scheduler.affinity:host_label: monitoring=true
-  elasticsearch:
-    image: registry.homelab.org/elasticsearch:7.7.0
-    environment:
-      discovery.type: single-node
-    stdin_open: true
-    tty: true
-    ports:
-    - 9200:9200/tcp
-    labels:
-      io.rancher.container.pull_image: always
-      io.rancher.scheduler.affinity:host_label: monitoring=true
-  grafana:
-    image: registry.homelab.org/grafana/grafana:7.0.1
-    stdin_open: true
-    volumes:
-    - /home/hanrw/monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-    - /etc/localtime:/etc/localtime:ro
-    - /home/hanrw/monitoring/grafana/data:/var/lib/grafana
-    tty: true
-    ports:
-    - 3000:3000/tcp
-    user: 0:0
-    labels:
-      io.rancher.scheduler.affinity:host_label: monitoring=true
+      io.rancher.scheduler.affinity:host_label: application=true
   debian:
     image: registry.homelab.org/debian:buster
     stdin_open: true
     tty: true
     labels:
-      io.rancher.container.pull_image: always
-      io.rancher.scheduler.affinity:host_label: monitoring=true
-  cadvisor:
-    image: registry.homelab.org/google/cadvisor:canary
-    stdin_open: true
-    volumes:
-    - /:/rootfs:ro
-    - /var/run:/var/run:rw
-    - /sys:/sys:ro
-    - /var/lib/docker/:/var/lib/docker:ro
-    tty: true
-    labels:
-      io.rancher.container.pull_image: always
-      io.rancher.scheduler.global: 'true'
-  prometheus:
-    image: registry.homelab.org/prometheus:v2.18.1
+      io.rancher.scheduler.affinity:host_label: application=true
+  mysql:
+    image: registry.homelab.org/mysql:5.7
     environment:
-      CONSUL_URL: eureka-consul:8761
-    external_links:
-    - piggymetrics/registry:eureka-consul
-    volumes:
-    - /etc/localtime:/etc/localtime:ro
+      MYSQL_ROOT_PASSWORD: password
+    stdin_open: true
+    tty: true
     ports:
-    - 9090:9090/tcp
+    - 3306:3306/tcp
     labels:
-      io.rancher.scheduler.affinity:host_label: monitoring=true
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:host_label: application=true
+  redis:
+    image: registry.homelab.org/redis:6.0.4
+    stdin_open: true
+    tty: true
+    ports:
+    - 6379:6379/tcp
+    labels:
+      io.rancher.scheduler.affinity:host_label: application=true
+

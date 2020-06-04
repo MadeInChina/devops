@@ -1,0 +1,30 @@
+version: '2'
+services:
+  telegraf:
+    group_add:
+    - '999'
+    image: registry.homelab.org/telegraf:1.14.3
+    environment:
+      HOST_ETC: /hostfs/etc
+      HOST_PROC: /hostfs/proc
+      HOST_SYS: /hostfs/sys
+      HOST_VAR: /hostfs/var
+      HOST_RUN: /hostfs/run
+      HOST_MOUNT_PREFIX: /hostfs
+    stdin_open: true
+    external_links:
+    - monitoring/influxdb:influxdb
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - /:/hostfs:ro
+    - /etc:/hostfs/etc:ro
+    - /proc:/hostfs/proc:ro
+    - /sys:/hostfs/sys:ro
+    - /var:/hostfs/var:ro
+    - /run:/hostfs/run:ro
+    tty: true
+    labels:
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.global: 'true'
+

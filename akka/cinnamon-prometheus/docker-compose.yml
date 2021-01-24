@@ -1,0 +1,20 @@
+version: "2"
+
+services:
+  prometheus:
+    image: registry.homelab.org/prometheus:v2.3.2
+    user: root
+    ports:
+      - 9090:9090
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:host_label: monitoring=true
+  grafana:
+    image: registry.homelab.org/grafana:5.2.1
+    ports:
+      - 3000:3000
+    depends_on:
+      - prometheus
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:host_label: monitoring=true
